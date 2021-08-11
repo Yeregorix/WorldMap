@@ -26,13 +26,10 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.world.DimensionType;
-import org.spongepowered.api.world.DimensionTypes;
 
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Consumer;
 
 public abstract class WorldMapLoader<T> {
 	protected final Logger logger;
@@ -48,10 +45,6 @@ public abstract class WorldMapLoader<T> {
 	}
 
 	public WorldMap<T> load() {
-		return load(map -> {});
-	}
-
-	protected WorldMap<T> load(Consumer<WorldMapConfig> preprocessor) {
 		try {
 			Files.createDirectories(this.configsDir);
 		} catch (IOException e) {
@@ -66,8 +59,6 @@ public abstract class WorldMapLoader<T> {
 			boolean init = map == null;
 			if (init)
 				map = new WorldMapConfig();
-			preprocessor.accept(map);
-			if (init)
 				initMap(map);
 
 			root.setValue(WorldMapConfig.TOKEN, map);
@@ -108,61 +99,6 @@ public abstract class WorldMapLoader<T> {
 	}
 
 	protected abstract T loadConfig(Path file) throws Exception;
-
-	public WorldMap<T> importWorlds(Path worlds) {
-		return load(map -> {
-			try (DirectoryStream<Path> st = Files.newDirectoryStream(worlds)) {
-				for (Path file : st) {
-					String fn = file.getFileName().toString();
-					if (!fn.endsWith(".conf"))
-						continue;
-
-					// Detect main worlds
-					String name = fn.substring(0, fn.length() - 5);
-					DimensionType dim;
-					switch (name) {
-						case "world":
-							dim = DimensionTypes.OVERWORLD;
-							break;
-						case "DIM-1":
-							dim = DimensionTypes.NETHER;
-							break;
-						case "DIM1":
-							dim = DimensionTypes.THE_END;
-							break;
-						default:
-							dim = null;
-							break;
-					}
-
-					// Set default parameters when possible
-					if (dim != null) {
-						String dimId = getShortId(dim);
-						Path dimDest = this.configsDir.resolve(dimId + ".conf");
-						if (Files.notExists(dimDest)) {
-							if (dimId.equals(map.global)) {
-								Files.copy(file, dimDest);
-								continue;
-							} else if (!map.dimensions.containsKey(dim)) {
-								Files.copy(file, dimDest);
-								map.dimensions.put(dim, dimId);
-								continue;
-							}
-						}
-					}
-
-					// Set world
-					Path worldDest = this.configsDir.resolve(name + ".conf");
-					if (Files.notExists(worldDest) && !map.worlds.containsKey(name)) {
-						Files.copy(file, worldDest);
-						map.worlds.put(name, name);
-					}
-				}
-			} catch (Exception e) {
-				this.logger.warn("Failed to import worlds", e);
-			}
-		});
-	}
 
 	public static String getShortId(DimensionType dim) {
 		return dim.getId().substring(dim.getId().indexOf(':') + 1);
