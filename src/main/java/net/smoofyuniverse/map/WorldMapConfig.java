@@ -23,10 +23,13 @@
 package net.smoofyuniverse.map;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.reflect.TypeToken;
-import ninja.leaping.configurate.objectmapping.Setting;
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
-import org.spongepowered.api.world.DimensionType;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.registry.Registry;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.world.WorldType;
+import org.spongepowered.configurate.objectmapping.ConfigSerializable;
+import org.spongepowered.configurate.objectmapping.meta.Comment;
+import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,34 +37,38 @@ import java.util.function.Function;
 
 @ConfigSerializable
 public class WorldMapConfig {
-	public static final TypeToken<WorldMapConfig> TOKEN = TypeToken.of(WorldMapConfig.class);
-
-	@Setting(value = "Global", comment = "The default configuration used when no dimension matches")
+	@Comment("The default configuration used when no type matches")
+	@Setting("Global")
 	public String global = "overworld";
-	@Setting(value = "Dimensions", comment = "The default configuration by dimension when no world name matches")
-	public Map<DimensionType, String> dimensions = new HashMap<>();
-	@Setting(value = "Worlds", comment = "The configurations associated to specific world names")
-	public Map<String, String> worlds = new HashMap<>();
+
+	@Comment("The default configuration by type when no name matches")
+	@Setting("Types")
+	public Map<ResourceKey, String> types = new HashMap<>();
+
+	@Comment("The configurations associated to specific world names")
+	@Setting("Worlds")
+	public Map<ResourceKey, String> worlds = new HashMap<>();
 
 	public <T> WorldMap<T> load(Function<String, T> loader) {
+		Registry<WorldType> worldTypeRegistry = RegistryTypes.WORLD_TYPE.get();
 		Map<String, T> cache = new HashMap<>();
 
 		T global = cache.computeIfAbsent(this.global, loader);
 
-		ImmutableMap.Builder<DimensionType, T> dimensions = ImmutableMap.builder();
-		for (Map.Entry<DimensionType, String> e : this.dimensions.entrySet()) {
+		ImmutableMap.Builder<WorldType, T> types = ImmutableMap.builder();
+		for (Map.Entry<ResourceKey, String> e : this.types.entrySet()) {
 			T value = cache.computeIfAbsent(e.getValue(), loader);
 			if (value != null)
-				dimensions.put(e.getKey(), value);
+				types.put(worldTypeRegistry.value(e.getKey()), value);
 		}
 
-		ImmutableMap.Builder<String, T> worlds = ImmutableMap.builder();
-		for (Map.Entry<String, String> e : this.worlds.entrySet()) {
+		ImmutableMap.Builder<ResourceKey, T> worlds = ImmutableMap.builder();
+		for (Map.Entry<ResourceKey, String> e : this.worlds.entrySet()) {
 			T value = cache.computeIfAbsent(e.getValue(), loader);
 			if (value != null)
 				worlds.put(e.getKey(), value);
 		}
 
-		return new WorldMap<>(global, dimensions.build(), worlds.build());
+		return new WorldMap<>(global, types.build(), worlds.build());
 	}
 }

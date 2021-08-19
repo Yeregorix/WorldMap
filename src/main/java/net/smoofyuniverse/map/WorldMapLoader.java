@@ -22,10 +22,9 @@
 
 package net.smoofyuniverse.map;
 
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
-import org.slf4j.Logger;
-import org.spongepowered.api.world.DimensionType;
+import org.apache.logging.log4j.Logger;
+import org.spongepowered.configurate.ConfigurationNode;
+import org.spongepowered.configurate.loader.ConfigurationLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -54,14 +53,14 @@ public abstract class WorldMapLoader<T> {
 
 		try {
 			ConfigurationNode root = this.mapLoader.load();
-			WorldMapConfig map = root.getValue(WorldMapConfig.TOKEN);
+			WorldMapConfig map = root.get(WorldMapConfig.class);
 
 			boolean init = map == null;
 			if (init)
 				map = new WorldMapConfig();
 				initMap(map);
 
-			root.setValue(WorldMapConfig.TOKEN, map);
+			root.set(map);
 			this.mapLoader.save(root);
 
 			return map.load(this::loadConfig);
@@ -99,8 +98,4 @@ public abstract class WorldMapLoader<T> {
 	}
 
 	protected abstract T loadConfig(Path file) throws Exception;
-
-	public static String getShortId(DimensionType dim) {
-		return dim.getId().substring(dim.getId().indexOf(':') + 1);
-	}
 }

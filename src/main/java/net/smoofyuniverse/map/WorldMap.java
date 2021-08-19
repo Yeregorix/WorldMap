@@ -23,39 +23,40 @@
 package net.smoofyuniverse.map;
 
 import com.google.common.collect.ImmutableMap;
-import org.spongepowered.api.world.DimensionType;
-import org.spongepowered.api.world.storage.WorldProperties;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.world.WorldType;
+import org.spongepowered.api.world.server.storage.ServerWorldProperties;
 
 import java.util.Map;
 
 public class WorldMap<T> {
 	private final T global;
-	private final Map<DimensionType, T> dimensions;
-	private final Map<String, T> worlds;
+	private final Map<WorldType, T> types;
+	private final Map<ResourceKey, T> worlds;
 
 	public WorldMap(T global) {
 		this(global, ImmutableMap.of(), ImmutableMap.of());
 	}
 
-	public WorldMap(T global, Map<DimensionType, T> dimensions, Map<String, T> worlds) {
+	public WorldMap(T global, Map<WorldType, T> types, Map<ResourceKey, T> worlds) {
 		if (global == null)
 			throw new IllegalArgumentException("global");
-		if (dimensions == null)
-			throw new IllegalArgumentException("dimensions");
+		if (types == null)
+			throw new IllegalArgumentException("types");
 		if (worlds == null)
 			throw new IllegalArgumentException("worlds");
 
 		this.global = global;
-		this.dimensions = ImmutableMap.copyOf(dimensions);
+		this.types = ImmutableMap.copyOf(types);
 		this.worlds = ImmutableMap.copyOf(worlds);
 	}
 
-	public T get(WorldProperties properties) {
-		T config = this.worlds.get(properties.getWorldName());
+	public T get(ServerWorldProperties properties) {
+		T config = this.worlds.get(properties.key());
 		if (config != null)
 			return config;
 
-		config = this.dimensions.get(properties.getDimensionType());
+		config = this.types.get(properties.worldType());
 		if (config != null)
 			return config;
 

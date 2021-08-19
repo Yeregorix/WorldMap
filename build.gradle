@@ -49,7 +49,7 @@ repositories {
 }
 
 dependencies {
-    api 'org.spongepowered:spongeapi:7.3.0'
+    api 'org.spongepowered:spongeapi:8.0.0-SNAPSHOT'
 }
 
 publishing {
