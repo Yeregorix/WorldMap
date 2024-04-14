@@ -56,9 +56,10 @@ public abstract class WorldMapLoader<T> {
 			WorldMapConfig map = root.get(WorldMapConfig.class);
 
 			boolean init = map == null;
-			if (init)
+			if (init) {
 				map = new WorldMapConfig();
 				initMap(map);
+			}
 
 			root.set(map);
 			this.mapLoader.save(root);
