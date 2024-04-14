@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Hugo Dupanloup (Yeregorix)
+ * Copyright (c) 2021-2024 Hugo Dupanloup (Yeregorix)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ public abstract class WorldMapLoader<T> {
 		try {
 			Files.createDirectories(this.configsDir);
 		} catch (IOException e) {
-			this.logger.error("Failed to create directories: " + this.configsDir, e);
+			this.logger.error("Failed to create directories: {}", this.configsDir, e);
 			return globalFallback();
 		}
 
@@ -85,15 +85,15 @@ public abstract class WorldMapLoader<T> {
 
 		Path file = this.configsDir.resolve(name + ".conf").toAbsolutePath();
 		if (!file.startsWith(this.configsDir)) {
-			this.logger.warn("Invalid config location: " + file);
+			this.logger.warn("Invalid config location: {}", file);
 			return this.fallback;
 		}
 
-		this.logger.info("Loading configuration " + name + " ...");
+		this.logger.info("Loading configuration {} ...", name);
 		try {
 			return loadConfig(file);
 		} catch (Exception e) {
-			this.logger.error("Failed to load configuration " + name, e);
+			this.logger.error("Failed to load configuration {}", name, e);
 			return this.fallback;
 		}
 	}
