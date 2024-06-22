@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Hugo Dupanloup (Yeregorix)
+ * Copyright (c) 2021-2024 Hugo Dupanloup (Yeregorix)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +22,11 @@
 
 package net.smoofyuniverse.map;
 
-import com.google.common.collect.ImmutableMap;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.world.WorldType;
 import org.spongepowered.api.world.server.storage.ServerWorldProperties;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class WorldMap<T> {
@@ -35,7 +35,7 @@ public class WorldMap<T> {
 	private final Map<ResourceKey, T> worlds;
 
 	public WorldMap(T global) {
-		this(global, ImmutableMap.of(), ImmutableMap.of());
+		this(global, Collections.emptyMap(), Collections.emptyMap());
 	}
 
 	public WorldMap(T global, Map<WorldType, T> types, Map<ResourceKey, T> worlds) {
@@ -47,8 +47,8 @@ public class WorldMap<T> {
 			throw new IllegalArgumentException("worlds");
 
 		this.global = global;
-		this.types = ImmutableMap.copyOf(types);
-		this.worlds = ImmutableMap.copyOf(worlds);
+		this.types = types;
+		this.worlds = worlds;
 	}
 
 	public T get(ServerWorldProperties properties) {

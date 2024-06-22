@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Hugo Dupanloup (Yeregorix)
+ * Copyright (c) 2021-2024 Hugo Dupanloup (Yeregorix)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,6 @@
 
 package net.smoofyuniverse.map;
 
-import com.google.common.collect.ImmutableMap;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.registry.Registry;
 import org.spongepowered.api.registry.RegistryTypes;
@@ -55,20 +54,20 @@ public class WorldMapConfig {
 
 		T global = cache.computeIfAbsent(this.global, loader);
 
-		ImmutableMap.Builder<WorldType, T> types = ImmutableMap.builder();
+		Map<WorldType, T> types = new HashMap<>();
 		for (Map.Entry<ResourceKey, String> e : this.types.entrySet()) {
 			T value = cache.computeIfAbsent(e.getValue(), loader);
 			if (value != null)
 				types.put(worldTypeRegistry.value(e.getKey()), value);
 		}
 
-		ImmutableMap.Builder<ResourceKey, T> worlds = ImmutableMap.builder();
+		Map<ResourceKey, T> worlds = new HashMap<>();
 		for (Map.Entry<ResourceKey, String> e : this.worlds.entrySet()) {
 			T value = cache.computeIfAbsent(e.getValue(), loader);
 			if (value != null)
 				worlds.put(e.getKey(), value);
 		}
 
-		return new WorldMap<>(global, types.build(), worlds.build());
+		return new WorldMap<>(global, types, worlds);
 	}
 }
