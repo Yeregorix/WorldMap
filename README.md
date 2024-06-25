@@ -8,4 +8,4 @@ Examples of plugins using WorldMap:
 - [AutoPickup](https://github.com/Yeregorix/AutoPickup)
 - [SuperPiston](https://github.com/Yeregorix/SuperPiston)
 
-The project requires Java 17 to build.
+The project requires Java 21 to build.
